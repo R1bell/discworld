@@ -36,18 +36,22 @@ class Orders(Resource):
     def post(self):
         order: Order = Order(**api.payload, login=get_jwt_identity()).commit
         recipients: List[str] = [api.payload.get("email")]
-        body: str = body_template.format(
-            firstName=order.firstName,
-            id=order.id,
-            date=date.today().strftime("%d %B %Y"),
-            order_amount=order.comment.split()[-1]
+        try:
+            body: str = body_template.format(
+                firstName=order.firstName,
+                id=order.id,
+                date=date.today().strftime("%d %B %Y"),
+                order_amount=order.comment.split()[-1]
+                )
+            msg: Message = Message(
+                "HoneyBunny заказ №{}".format(order.id),
+                recipients=recipients,
+                body=body
             )
-        msg: Message = Message(
-            "HoneyBunny заказ №{}".format(order.id),
-            recipients=recipients,
-            body=body
-        )
-        mail.send(msg)
+            mail.send(msg)
+        except Exception as err:
+            import logging
+            logging.error(order.comment)
         return order
 
     @jwt_required
