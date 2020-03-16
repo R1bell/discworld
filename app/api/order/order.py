@@ -52,7 +52,7 @@ class Orders(Resource):
         except Exception as err:
             import logging
             logging.error(order.comment)
-            logging.error(str(err))
+            logging.error(err)
         return order
 
     @jwt_required
